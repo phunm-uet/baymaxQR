@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <style type="text/css" media="screen">
+    .main{
+      margin-top: 20px;
+    }
+    html,body {
+      width: 100%;
+      height: 100%;
+    }
+    body{
+      background-image: url(https://drscdn.500px.org/photo/140636891/q%3D80_m%3D2000/a4175c2fcec8fb5eaf7b63bfa0054675);
+      background-size:     cover;                      
+      background-repeat:   no-repeat;
+      background-position: center center;
+        }
+    h4{
+      color: white;
+    }
+    td {
+      width: 20px;
+      height: 30px;
+    }
+    .image_QR{
+      height: 30px;
+    }
+  </style>
+  <title>Qr Code</title>
+</head>
+<body>
+  <div class="container">
+      <h4>Hi! Welcome to our website which will help you convert seed datas to QRcode.</h4>
+      <div class="divider"></div>
+      <div class="col-xs-6 col-xs-offset-3">
+        <section id="donle"> 
+          <div class="form-group">
+            <label for="">Seed Data</label>
+            <input class="form-control" id="input">
+          </div>
+          <h4>QR Code</h4>
+          <img src="" alt="" id="img_qr">
+         <br><br>
+            <button type="button" class="btn btn-primary" id="dwl_1"><span class="glyphicon glyphicon-save"></span>  Download</button>
+            <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-print
+              "></span>  Print</button>            
+        </section>
+        <!-- End section chuyen doi don le -->
+
+        <section id="hangloat">
+          <div class="form-group">
+            <label for="">Input File</label>
+            <div class="form-inline">
+              <input type="file" name="" class="form-control" id="file">
+              <button type="button" class="btn btn-warning" id="upload"><span class="glyphicon glyphicon-cloud-upload
+"></span> Upload</button>  
+            </div>
+          </div>
+          <div id="output_hangloat">
+            <h5 style="color: white"><b>Output</b></h5>
+            <table class="table">
+              <tbody id="body-output">
+              </tbody>
+            </table>
+            <button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-save"></span>  Download</button>
+            <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-print
+              "></span>  Print</button> 
+          </div>
+        </section>
+      </div>
+  </div>
+
+  <script src="//code.jquery.com/jquery.js"></script>
+</body>
+</html>
+
+<script>
+  $(document).ready(function() {
+    var baseURL = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=";
+    $("#input").on('keydown',function(e){
+      if(e.keyCode == 13){
+        var input = $("#input").val();
+        $.get('get.php',{
+          input:input,
+        },function(data) {
+          var urlQR = baseURL + data;
+          $("#img_qr").attr('src',urlQR);
+        });
+      }
+    });
+
+    $("#upload").click(function(){
+      var file_data = $("#file").prop('files')[0];
+      var form_data = new FormData();                  
+      form_data.append('file', file_data);
+      console.log(form_data);
+      $.ajax({
+        url: 'post.php',
+        type: 'POST',
+        dataType: 'JSON',
+        contentType: false,
+        cache: false,
+        processData:false,
+        data : form_data,
+      })
+      .done(function(respone) {
+        $dataTable = "";
+        for(i = 0;i < respone.length; i++){
+          var imgQR = baseURL + respone[i].hash;
+          $dataTable += "<tr class='success'><td class='text-center'>"+respone[i].code+"</td>";
+          $dataTable += "<td class='text-center'><img src='"+imgQR+"' alt='' class='image_QR'></td></tr>";
+        }
+        $("#body-output").html($dataTable);
+      });
+    });
+  });
+</script>
